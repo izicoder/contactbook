@@ -4,6 +4,9 @@
     "express": "^5.1.0",
     "lowdb": "^7.0.1"
   },
+  "scripts": {
+    "dev": "ts-node-dev src/index.ts"
+  },
   "devDependencies": {
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
