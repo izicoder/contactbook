@@ -18,18 +18,24 @@ function App() {
     return (
         <div>
             <h1>Contact book</h1>
-            <ul>
-                {contacts.map((c) => (
-                    <li key={c.id}>
-                        <div className="contact-info">
-                            <strong>{c.name}</strong>
-                            <br></br>
-                            {c.phone}
-                        </div>
-                    </li>
-                ))}
-            </ul>
+            <ContactList contacts={contacts}></ContactList>
         </div>
+    )
+}
+
+function ContactList({ contacts }: { contacts: Contact[] }) {
+    return (
+        <ul>
+            {contacts.map((c) => (
+                <li key={c.id}>
+                    <div className="contact-info">
+                        <strong>{c.name}</strong>
+                        <br></br>
+                        {c.phone}
+                    </div>
+                </li>
+            ))}
+        </ul>
     )
 }
 
