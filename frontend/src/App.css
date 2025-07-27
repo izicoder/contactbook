@@ -1,12 +1,20 @@
 #root {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 0;
   text-align: left;
   isolation: isolate;
 }
 
 ul {
   list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
+li {
+  border: solid 1px black ;
+  border-radius: 3px;
+  padding: 10px;
+  margin: 5px;
+}

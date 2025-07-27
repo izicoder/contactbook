@@ -1,13 +1,8 @@
 import { useEffect, useState, type CSSProperties } from "react"
 import "./App.css"
+import type { Contact } from "./Contact"
 
 const apiEndpoint = "http://127.0.0.1:9999/contact"
-type Contact = {
-    id: string
-    name: string
-    phone: string
-}
-
 function App() {
     const [contacts, setContacts] = useState<Contact[]>([])
     const [isAddContactOpen, setAddContactState] = useState(false)
@@ -70,12 +65,12 @@ function AddContactWindow({ onClose }: { onClose: () => void }) {
 const windowStyle: CSSProperties = {
     border: "1px solid #ccc",
     padding: "1rem",
-    background: "#fff",
+    background: "rgba(48, 47, 47, 0.82)",
     position: "fixed",
-    top: "50%",
-    left: "50%",
+    top: "30%",
+    left: "40%",
     width: "300px",
-    boxShadow: "0 0 10px rgba(0,0,0,0.2)"
+    boxShadow: "0 0 10px rgba(29, 29, 29, 0.2)"
 }
 
 export default App
