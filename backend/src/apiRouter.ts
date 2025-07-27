@@ -10,11 +10,11 @@ apiRouter.post("/", (req, res) => {
     res.json({ msg: "hi from post" })
 })
 
-apiRouter.put("/", (req, res) => {
+apiRouter.put("/:id", (req, res) => {
     res.json({ msg: "hi from put" })
 })
 
-apiRouter.delete("/", (req, res) => {
+apiRouter.delete("/:id", (req, res) => {
     res.json({ msg: "hi from delete" })
 })
 
