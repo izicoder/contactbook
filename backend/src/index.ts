@@ -9,8 +9,7 @@ server.use(express.json())
 // logging
 server.use(async (req, res, next) => {
     const date = new Date()
-    console.log(`request to ${req.path} from ${req.ip} at ${date.toLocaleString()} with`)
-    console.log(req.headers)
+    console.log(`request to ${req.method} ${req.path} from ${req.ip} at ${date.toLocaleString()} with body`)
     console.log(req.body)
     next()
 })

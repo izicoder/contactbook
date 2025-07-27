@@ -11,6 +11,23 @@ function App() {
         fetch(apiEndpoint, { method: "get" }).then((res) => res.json().then((data) => setContacts(data)))
     }, [])
 
+    const addContact = async (name: string, phone: string) => {
+        const res = await fetch(apiEndpoint, {
+            method: "post",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ name: name, phone: phone })
+        })
+        if (!res.ok) return
+        const data = await res.json()
+        setContacts((prev) => [data, ...prev])
+    }
+
+    const editContact = (id: string) => {}
+
+    const deleteContact = (id: string) => {}
+
     return (
         <div>
             <h1>Contact book</h1>
@@ -21,7 +38,11 @@ function App() {
             >
                 Add Contact
             </button>
-            {isAddContactOpen ? <AddContactWindow onClose={() => setAddContactState(false)} /> : <></>}
+            {isAddContactOpen ? (
+                <AddContactWindow onClose={() => setAddContactState(false)} onSubmit={addContact} />
+            ) : (
+                <></>
+            )}
 
             <ContactList contacts={contacts}></ContactList>
         </div>
@@ -44,19 +65,21 @@ function ContactList({ contacts }: { contacts: Contact[] }) {
     )
 }
 
-function AddContactWindow({ onClose }: { onClose: () => void }) {
+function AddContactWindow({
+    onClose,
+    onSubmit
+}: {
+    onClose: () => void
+    onSubmit: (name: string, phone: string) => void
+}) {
     const [name, setName] = useState("")
     const [phone, setPhone] = useState("")
-
-    const onSubmit = () => {
-        console.log({ name: name, phone: phone })
-    }
 
     return (
         <div style={windowStyle}>
             <input value={name} onChange={(e) => setName(e.target.value)} placeholder="name"></input>
             <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="phone number"></input>
-            <button onClick={onSubmit}>Submit</button>
+            <button onClick={() => onSubmit(name, phone)}>Submit</button>
             <button onClick={onClose}>Close</button>
         </div>
     )
