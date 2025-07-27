@@ -2,19 +2,20 @@ import express from "express"
 import cors from "cors"
 import router from "./apiRouter"
 
-const app = express()
-app.use(cors())
-app.use(express.json())
+const server = express()
+server.use(cors())
+server.use(express.json())
 
 // logging
-app.use((req, res, next) => {
+server.use(async (req, res, next) => {
     const date = new Date()
     console.log(`request from ${req.ip} at ${date.toLocaleString()} with`)
     console.log(req.headers)
+    console.log(req.body)
     next()
 })
 
-app.use("/contact", router)
+server.use("/contact", router)
 
 const port = 9999
-app.listen(port, () => console.log(`running on ${port}`))
+server.listen(port, () => console.log(`running on ${port}`))

@@ -1,5 +1,5 @@
-import { Low } from "lowdb/lib"
 import { JSONFile } from "lowdb/node"
+import { Low } from "lowdb"
 import { join } from "path"
 
 type Contact = {
@@ -13,7 +13,7 @@ type Data = {
 }
 
 const defaultData: Data = { contacts: [] }
-const dbFilename = join(__dirname, "db.json")
+const dbFilename = join(__dirname, "..", "db.json")
 const adapter = new JSONFile<Data>(dbFilename)
 
 const db = new Low(adapter, defaultData)
