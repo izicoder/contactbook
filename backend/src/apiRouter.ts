@@ -1,13 +1,12 @@
 import { Router } from "express"
 import db from "./db"
 import { v4 as uuidv4 } from "uuid"
-import { error } from "console"
 
 const apiRouter = Router()
 
 apiRouter.get("/", async (req, res) => {
     await db.read()
-    res.json(db.data.contacts)
+    res.json(db.data.contacts.reverse())
 })
 
 apiRouter.post("/", async (req, res) => {
@@ -19,7 +18,7 @@ apiRouter.post("/", async (req, res) => {
         name: name,
         phone: phone
     }
-    db.data!.contacts.push(newContact)
+    db.data.contacts.push(newContact)
     await db.write()
 
     res.json(newContact)
