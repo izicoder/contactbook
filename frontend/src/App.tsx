@@ -41,7 +41,21 @@ function App() {
         })
     }
 
-    const deleteContact = (id: string) => {}
+    const deleteContact = async (id: string) => {
+        const res = await fetch(`${apiEndpoint}/${id}`, {
+            method: "delete",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ id: id })
+        })
+        if (!res.ok) return
+        const data: Contact = await res.json()
+        setContacts((contacts) => {
+            const rest = contacts.filter((c) => c.id != data.id)
+            return rest
+        })
+    }
 
     return (
         <div>
@@ -75,12 +89,23 @@ function App() {
                     setCurrentEditId(c.id)
                     setEditContactState(true)
                 }}
+                onDelete={(c) => {
+                    deleteContact(c.id)
+                }}
             ></ContactList>
         </div>
     )
 }
 
-function ContactList({ contacts, onEdit }: { contacts: Contact[]; onEdit: (c: Contact) => void }) {
+function ContactList({
+    contacts,
+    onEdit,
+    onDelete
+}: {
+    contacts: Contact[]
+    onEdit: (c: Contact) => void
+    onDelete: (c: Contact) => void
+}) {
     return (
         <ul>
             {contacts.map((c) => (
@@ -91,6 +116,7 @@ function ContactList({ contacts, onEdit }: { contacts: Contact[]; onEdit: (c: Co
                         {c.phone}
                     </div>
                     <button onClick={() => onEdit(c)}>Edit</button>
+                    <button onClick={() => onDelete(c)}>Delete</button>
                 </li>
             ))}
         </ul>
