@@ -1,17 +1,21 @@
-import { useEffect, useState, type CSSProperties } from "react"
-import "./App.css"
-import type { Contact } from "./Contact"
+import { useEffect, useState, type CSSProperties } from "react";
+import "./App.css";
+import type { Contact } from "./Contact";
 
-const apiEndpoint = "http://127.0.0.1:9999/contact"
+const apiEndpoint = "http://127.0.0.1:9999/contact";
 function App() {
-    const [contacts, setContacts] = useState<Contact[]>([])
-    const [isAddContactOpen, setAddContactState] = useState(false)
-    const [isEditContactOpen, setEditContactState] = useState(false)
-    const [currentEditId, setCurrentEditId] = useState("")
+    const [contacts, setContacts] = useState<Contact[]>([]);
+    const [isAddWindowOpen, setAddWindowState] = useState(false);
+    const [isEditWindowOpen, setEditWindowState] = useState(false);
+    const [editID, setEditID] = useState("");
+
+    const refreshContacts = () => {
+        fetch(apiEndpoint, { method: "get" }).then((res) => res.json().then((data) => setContacts(data)));
+    };
 
     useEffect(() => {
-        fetch(apiEndpoint, { method: "get" }).then((res) => res.json().then((data) => setContacts(data)))
-    }, [])
+        refreshContacts();
+    }, []);
 
     const addContact = async (name: string, phone: string) => {
         const res = await fetch(apiEndpoint, {
@@ -20,11 +24,9 @@ function App() {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({ name: name, phone: phone })
-        })
-        if (!res.ok) return
-        const data = await res.json()
-        setContacts((prev) => [data, ...prev])
-    }
+        });
+        if (res.ok) refreshContacts();
+    };
 
     const editContact = async (id: string, name: string, phone: string) => {
         const res = await fetch(`${apiEndpoint}/${id}`, {
@@ -33,13 +35,9 @@ function App() {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({ id: id, name: name, phone: phone })
-        })
-        const data: Contact = await res.json()
-        setContacts((contacts) => {
-            const rest = contacts.filter((c) => c.id !== data.id)
-            return [data, ...rest]
-        })
-    }
+        });
+        if (res.ok) refreshContacts();
+    };
 
     const deleteContact = async (id: string) => {
         const res = await fetch(`${apiEndpoint}/${id}`, {
@@ -48,35 +46,34 @@ function App() {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({ id: id })
-        })
-        if (!res.ok) return
-        const data: Contact = await res.json()
-        setContacts((contacts) => {
-            const rest = contacts.filter((c) => c.id != data.id)
-            return rest
-        })
-    }
+        });
+        if (res.ok) refreshContacts();
+    };
 
     return (
         <div>
             <h1>Contact book</h1>
             <button
                 onClick={() => {
-                    setAddContactState(true)
+                    setAddWindowState(true);
                 }}
             >
                 Add Contact
             </button>
-            {isAddContactOpen ? (
-                <AddContactWindow onClose={() => setAddContactState(false)} onSubmit={addContact} />
+            {isAddWindowOpen ? (
+                <AddContactWindow
+                    onClose={() => setAddWindowState(false)}
+                    onSubmit={addContact}
+                />
             ) : (
                 <></>
             )}
-            {isEditContactOpen ? (
+            {isEditWindowOpen ? (
                 <EditContactWindow
-                    onClose={() => setEditContactState(false)}
+                    contact={contacts.filter((c) => c.id === editID)[0]}
+                    onClose={() => setEditWindowState(false)}
                     onSubmit={(newName, newPhone) => {
-                        editContact(currentEditId, newName, newPhone)
+                        editContact(editID, newName, newPhone);
                     }}
                 />
             ) : (
@@ -86,15 +83,15 @@ function App() {
             <ContactList
                 contacts={contacts}
                 onEdit={(c) => {
-                    setCurrentEditId(c.id)
-                    setEditContactState(true)
+                    setEditID(c.id);
+                    setEditWindowState(true);
                 }}
                 onDelete={(c) => {
-                    deleteContact(c.id)
+                    deleteContact(c.id);
                 }}
             ></ContactList>
         </div>
-    )
+    );
 }
 
 function ContactList({
@@ -102,9 +99,9 @@ function ContactList({
     onEdit,
     onDelete
 }: {
-    contacts: Contact[]
-    onEdit: (c: Contact) => void
-    onDelete: (c: Contact) => void
+    contacts: Contact[];
+    onEdit: (c: Contact) => void;
+    onDelete: (c: Contact) => void;
 }) {
     return (
         <ul>
@@ -120,32 +117,40 @@ function ContactList({
                 </li>
             ))}
         </ul>
-    )
+    );
 }
 
 function AddContactWindow({
     onClose,
     onSubmit
 }: {
-    onClose: () => void
-    onSubmit: (name: string, phone: string) => void
+    onClose: () => void;
+    onSubmit: (name: string, phone: string) => void;
 }) {
-    const [name, setName] = useState("")
-    const [phone, setPhone] = useState("")
-    const [error, setError] = useState("")
+    const [name, setName] = useState("");
+    const [phone, setPhone] = useState("");
+    const [error, setError] = useState("");
 
     return (
         <div style={windowStyle}>
             <h1>Add Contact</h1>
-            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="name"></input>
-            <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="phone number"></input>
+            <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="name"
+            ></input>
+            <input
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="phone number"
+            ></input>
             <button
                 onClick={() => {
                     if (!name || !phone) {
-                        setError("Invalid phone or name")
+                        setError("Invalid phone or name");
                     } else {
-                        onSubmit(name, phone)
-                        setError("")
+                        onSubmit(name, phone);
+                        setError("");
                     }
                 }}
             >
@@ -154,32 +159,42 @@ function AddContactWindow({
             <button onClick={onClose}>Close</button>
             <div>{error}</div>
         </div>
-    )
+    );
 }
 
 function EditContactWindow({
+    contact,
     onSubmit,
     onClose
 }: {
-    onSubmit: (name: string, phone: string) => void
-    onClose: () => void
+    contact: Contact;
+    onSubmit: (name: string, phone: string) => void;
+    onClose: () => void;
 }) {
-    const [name, setName] = useState("")
-    const [phone, setPhone] = useState("")
-    const [error, setError] = useState("")
+    const [newName, setName] = useState(contact.name);
+    const [newPhone, setPhone] = useState(contact.phone);
+    const [error, setError] = useState("");
 
     return (
         <div style={windowStyle}>
             <h1>Edit Contact</h1>
-            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="name"></input>
-            <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="phone number"></input>
+            <input
+                value={newName}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="name"
+            ></input>
+            <input
+                value={newPhone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="phone number"
+            ></input>
             <button
                 onClick={() => {
-                    if (!name || !phone) {
-                        setError("Invalid phone or name")
+                    if (!newName || !newPhone) {
+                        setError("Invalid phone or name");
                     } else {
-                        onSubmit(name, phone)
-                        setError("")
+                        onSubmit(newName, newPhone);
+                        setError("");
                     }
                 }}
             >
@@ -188,7 +203,7 @@ function EditContactWindow({
             <button onClick={onClose}>Close</button>
             <div>{error}</div>
         </div>
-    )
+    );
 }
 
 const windowStyle: CSSProperties = {
@@ -200,6 +215,6 @@ const windowStyle: CSSProperties = {
     left: "40%",
     width: "300px",
     boxShadow: "0 0 10px rgba(29, 29, 29, 0.2)"
-}
+};
 
-export default App
+export default App;
