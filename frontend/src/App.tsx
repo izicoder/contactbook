@@ -6,6 +6,8 @@ const apiEndpoint = "http://127.0.0.1:9999/contact"
 function App() {
     const [contacts, setContacts] = useState<Contact[]>([])
     const [isAddContactOpen, setAddContactState] = useState(false)
+    const [isEditContactOpen, setEditContactState] = useState(false)
+    const [currentEditId, setCurrentEditId] = useState("")
 
     useEffect(() => {
         fetch(apiEndpoint, { method: "get" }).then((res) => res.json().then((data) => setContacts(data)))
@@ -24,7 +26,20 @@ function App() {
         setContacts((prev) => [data, ...prev])
     }
 
-    const editContact = (id: string) => {}
+    const editContact = async (id: string, name: string, phone: string) => {
+        const res = await fetch(`${apiEndpoint}/${id}`, {
+            method: "put",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ id: id, name: name, phone: phone })
+        })
+        const data: Contact = await res.json()
+        setContacts((contacts) => {
+            const rest = contacts.filter((c) => c.id !== data.id)
+            return [data, ...rest]
+        })
+    }
 
     const deleteContact = (id: string) => {}
 
@@ -43,13 +58,29 @@ function App() {
             ) : (
                 <></>
             )}
+            {isEditContactOpen ? (
+                <EditContactWindow
+                    onClose={() => setEditContactState(false)}
+                    onSubmit={(newName, newPhone) => {
+                        editContact(currentEditId, newName, newPhone)
+                    }}
+                />
+            ) : (
+                <></>
+            )}
 
-            <ContactList contacts={contacts}></ContactList>
+            <ContactList
+                contacts={contacts}
+                onEdit={(c) => {
+                    setCurrentEditId(c.id)
+                    setEditContactState(true)
+                }}
+            ></ContactList>
         </div>
     )
 }
 
-function ContactList({ contacts }: { contacts: Contact[] }) {
+function ContactList({ contacts, onEdit }: { contacts: Contact[]; onEdit: (c: Contact) => void }) {
     return (
         <ul>
             {contacts.map((c) => (
@@ -59,6 +90,7 @@ function ContactList({ contacts }: { contacts: Contact[] }) {
                         <br></br>
                         {c.phone}
                     </div>
+                    <button onClick={() => onEdit(c)}>Edit</button>
                 </li>
             ))}
         </ul>
@@ -74,13 +106,61 @@ function AddContactWindow({
 }) {
     const [name, setName] = useState("")
     const [phone, setPhone] = useState("")
+    const [error, setError] = useState("")
 
     return (
         <div style={windowStyle}>
+            <h1>Add Contact</h1>
             <input value={name} onChange={(e) => setName(e.target.value)} placeholder="name"></input>
             <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="phone number"></input>
-            <button onClick={() => onSubmit(name, phone)}>Submit</button>
+            <button
+                onClick={() => {
+                    if (!name || !phone) {
+                        setError("Invalid phone or name")
+                    } else {
+                        onSubmit(name, phone)
+                        setError("")
+                    }
+                }}
+            >
+                Submit
+            </button>
             <button onClick={onClose}>Close</button>
+            <div>{error}</div>
+        </div>
+    )
+}
+
+function EditContactWindow({
+    onSubmit,
+    onClose
+}: {
+    onSubmit: (name: string, phone: string) => void
+    onClose: () => void
+}) {
+    const [name, setName] = useState("")
+    const [phone, setPhone] = useState("")
+    const [error, setError] = useState("")
+
+    return (
+        <div style={windowStyle}>
+            <h1>Edit Contact</h1>
+            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="name"></input>
+            <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="phone number"></input>
+            <button
+                onClick={() => {
+                    if (!name || !phone) {
+                        setError("Invalid phone or name")
+                    } else {
+                        onSubmit(name, phone)
+                        setError("")
+                    }
+                }}
+            >
+                Submit
+            </button>
+            <button onClick={onClose}>Close</button>
+            <div>{error}</div>
         </div>
     )
 }
