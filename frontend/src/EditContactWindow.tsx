@@ -8,7 +8,7 @@ export function EditContactWindow({
     onClose
 }: {
     contact: Contact;
-    onSubmit: (name: string, phone: string) => void;
+    onSubmit: (c: Contact) => void;
     onClose: () => void;
 }) {
     const [newName, setName] = useState(contact.name);
@@ -24,7 +24,7 @@ export function EditContactWindow({
                     if (!newName || !newPhone) {
                         setError("Invalid phone or name");
                     } else {
-                        onSubmit(newName, newPhone);
+                        onSubmit({ id: contact.id, name: newName, phone: newPhone });
                         setError("");
                     }
                 }}
