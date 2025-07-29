@@ -89,6 +89,7 @@ function App() {
                     <AddContactWindow
                         onClose={() => setWindowState("closed")}
                         onSubmit={addContact}
+                        onError={(msg) => popError(msg)}
                     />
                 );
             }
@@ -99,6 +100,7 @@ function App() {
                             contact={contactToEdit}
                             onClose={() => setWindowState("closed")}
                             onSubmit={editContact}
+                            onError={(msg) => popError(msg)}
                         />
                     );
                 } else {

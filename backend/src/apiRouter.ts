@@ -10,7 +10,7 @@ apiRouter.get("/", async (req, res) => {
 });
 
 apiRouter.post("/", async (req, res) => {
-    if (!req.body.name || !req.body.phone) return res.status(400).json({ error: "Wrong/missing name or phone" });
+    if (!req.body.name || !req.body.phone) return res.status(400).json({ error: "Missing name or phone" });
     const { name, phone } = req.body;
 
     const newContact = {
@@ -25,7 +25,7 @@ apiRouter.post("/", async (req, res) => {
 });
 
 apiRouter.put("/:id", async (req, res) => {
-    if (!req.body.name || !req.body.phone) return res.status(400).json({ error: "Wrong/missing name or phone" });
+    if (!req.body.name || !req.body.phone) return res.status(400).json({ error: "Missing name or phone" });
     const { name, phone } = req.body;
 
     const id = req.params.id;
@@ -33,7 +33,7 @@ apiRouter.put("/:id", async (req, res) => {
     await db.read();
     const contact = db.data.contacts.find((c) => c.id === id);
 
-    if (!contact) return res.status(400).json({ error: "cant find contact" });
+    if (!contact) return res.status(400).json({ error: `Cant find contact ${id}` });
 
     contact.name = name;
     contact.phone = phone;
@@ -54,7 +54,7 @@ apiRouter.delete("/:id", async (req, res) => {
         }
     });
     console.log(contactIndex);
-    if (contactIndex === null) return res.status(400).json({ error: "cant find contact" });
+    if (contactIndex === null) return res.status(400).json({ error: `Cant find contact ${id}` });
 
     const deleted = db.data.contacts.splice(contactIndex, 1);
     await db.write();

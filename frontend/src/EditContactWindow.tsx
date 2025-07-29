@@ -5,15 +5,16 @@ import "./window.css";
 export function EditContactWindow({
     contact,
     onSubmit,
-    onClose
+    onClose,
+    onError
 }: {
     contact: Contact;
     onSubmit: (c: Contact) => void;
     onClose: () => void;
+    onError: (message: string) => void;
 }) {
     const [newName, setName] = useState(contact.name);
     const [newPhone, setPhone] = useState(contact.phone);
-    const [error, setError] = useState("");
 
     return (
         <div className="window">
@@ -22,10 +23,9 @@ export function EditContactWindow({
                 onSubmit={(e) => {
                     e.preventDefault();
                     if (!newName || !newPhone) {
-                        setError("Invalid phone or name");
+                        onError("Missing name or phone number");
                     } else {
                         onSubmit({ id: contact.id, name: newName, phone: newPhone });
-                        setError("");
                     }
                 }}
             >
@@ -47,7 +47,6 @@ export function EditContactWindow({
                 >
                     Cancel
                 </button>
-                {error && <div className="error">{error}</div>}
             </form>
         </div>
     );
