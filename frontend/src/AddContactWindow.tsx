@@ -14,19 +14,10 @@ export function AddContactWindow({
 
     return (
         <div className="window">
-            <h1>Add Contact</h1>
-            <input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="name"
-            ></input>
-            <input
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="phone number"
-            ></input>
-            <button
-                onClick={() => {
+            <h2>Add Contact</h2>
+            <form
+                onSubmit={(e) => {
+                    e.preventDefault();
                     if (!name || !phone) {
                         setError("Invalid phone or name");
                     } else {
@@ -35,10 +26,26 @@ export function AddContactWindow({
                     }
                 }}
             >
-                Submit
-            </button>
-            <button onClick={onClose}>Close</button>
-            <div>{error}</div>
+                <input
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Name"
+                />
+                <input
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="Phone number"
+                />
+                <button type="submit">Submit</button>
+                <button
+                    type="button"
+                    className="cancel-button"
+                    onClick={onClose}
+                >
+                    Cancel
+                </button>
+                {error && <div className="error">{error}</div>}
+            </form>
         </div>
     );
 }

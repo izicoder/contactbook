@@ -1,4 +1,5 @@
 import type { Contact } from "./Contact";
+import "./main.css";
 
 export function ContactList({
     contacts,
@@ -10,16 +11,20 @@ export function ContactList({
     onDelete: (c: Contact) => void;
 }) {
     return (
-        <ul>
+        <ul className="contact-list">
             {contacts.map((c) => (
-                <li key={c.id}>
+                <li
+                    key={c.id}
+                    className="contact-item"
+                >
                     <div className="contact-info">
-                        <strong>{c.name}</strong>
-                        <br></br>
-                        {c.phone}
+                        <h3>{c.name}</h3>
+                        <p>{c.phone}</p>
                     </div>
-                    <button onClick={() => onEdit(c)}>Edit</button>
-                    <button onClick={() => onDelete(c)}>Delete</button>
+                    <div className="contact-actions">
+                        <button onClick={() => onEdit(c)}>Edit</button>
+                        <button onClick={() => onDelete(c)}>Delete</button>
+                    </div>
                 </li>
             ))}
         </ul>

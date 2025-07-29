@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import "./App.css";
-import "./grid.css";
+import "./main.css";
 import type { Contact } from "./Contact";
 import { ContactList } from "./ContactList";
 import { AddContactWindow } from "./AddContactWindow";
@@ -97,7 +96,7 @@ function App() {
                     Add Contact
                 </button>
             </div>
-            <div className="bottom">
+            <div>
                 {renderWindows()}
 
                 <ContactList
