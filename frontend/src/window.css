@@ -1,0 +1,10 @@
+.window {
+    border: 1px solid #ccc;
+    padding: 1rem;
+    background: rgba(48, 47, 47, 0.82);
+    position: fixed;
+    top: 30%;
+    left: 40%;
+    width: 300px;
+    box-shadow: 0 0 10px rgba(29, 29, 29, 0.2);
+}

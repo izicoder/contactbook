@@ -1,20 +1,25 @@
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import type { Contact } from "./Contact";
+import { ContactList } from "./ContactList";
+import { AddContactWindow } from "./AddContactWindow";
+import { EditContactWindow } from "./EditContactWindow";
 
 const apiEndpoint = "http://127.0.0.1:9999/contact";
+
+type WindowState = "closed" | "editing" | "adding";
+
 function App() {
     const [contacts, setContacts] = useState<Contact[]>([]);
-    const [isAddWindowOpen, setAddWindowState] = useState(false);
-    const [isEditWindowOpen, setEditWindowState] = useState(false);
-    const [editID, setEditID] = useState("");
+    const [contactToEdit, setContactToEdit] = useState<Contact | null>(null);
+    const [windowState, setWindowState] = useState<WindowState>("closed");
 
-    const refreshContacts = () => {
+    const fetchContacts = () => {
         fetch(apiEndpoint, { method: "get" }).then((res) => res.json().then((data) => setContacts(data)));
     };
 
     useEffect(() => {
-        refreshContacts();
+        fetchContacts();
     }, []);
 
     const addContact = async (name: string, phone: string) => {
@@ -25,29 +30,58 @@ function App() {
             },
             body: JSON.stringify({ name: name, phone: phone })
         });
-        if (res.ok) refreshContacts();
+        if (res.ok) fetchContacts();
     };
 
-    const editContact = async (id: string, name: string, phone: string) => {
-        const res = await fetch(`${apiEndpoint}/${id}`, {
+    const editContact = async (contact: Contact) => {
+        const res = await fetch(`${apiEndpoint}/${contact.id}`, {
             method: "put",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ id: id, name: name, phone: phone })
+            body: JSON.stringify(contact)
         });
-        if (res.ok) refreshContacts();
+        if (res.ok) fetchContacts();
     };
 
-    const deleteContact = async (id: string) => {
-        const res = await fetch(`${apiEndpoint}/${id}`, {
+    const deleteContact = async (contact: Contact) => {
+        const res = await fetch(`${apiEndpoint}/${contact.id}`, {
             method: "delete",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ id: id })
+            body: JSON.stringify({ id: contact.id })
         });
-        if (res.ok) refreshContacts();
+        if (res.ok) fetchContacts();
+    };
+
+    const renderWindows = () => {
+        switch (windowState) {
+            case "adding": {
+                return (
+                    <AddContactWindow
+                        onClose={() => setWindowState("closed")}
+                        onSubmit={addContact}
+                    />
+                );
+            }
+            case "editing": {
+                if (contactToEdit !== null) {
+                    return (
+                        <EditContactWindow
+                            contact={contactToEdit}
+                            onClose={() => setWindowState("closed")}
+                            onSubmit={(newName, newPhone) => {
+                                editContact({ id: contactToEdit.id, name: newName, phone: newPhone });
+                            }}
+                        />
+                    );
+                } else return <></>;
+            }
+            case "closed": {
+                return <></>;
+            }
+        }
     };
 
     return (
@@ -55,166 +89,26 @@ function App() {
             <h1>Contact book</h1>
             <button
                 onClick={() => {
-                    setAddWindowState(true);
+                    setWindowState("adding");
                 }}
             >
                 Add Contact
             </button>
-            {isAddWindowOpen ? (
-                <AddContactWindow
-                    onClose={() => setAddWindowState(false)}
-                    onSubmit={addContact}
-                />
-            ) : (
-                <></>
-            )}
-            {isEditWindowOpen ? (
-                <EditContactWindow
-                    contact={contacts.filter((c) => c.id === editID)[0]}
-                    onClose={() => setEditWindowState(false)}
-                    onSubmit={(newName, newPhone) => {
-                        editContact(editID, newName, newPhone);
-                    }}
-                />
-            ) : (
-                <></>
-            )}
+
+            {renderWindows()}
 
             <ContactList
                 contacts={contacts}
                 onEdit={(c) => {
-                    setEditID(c.id);
-                    setEditWindowState(true);
+                    setContactToEdit(c);
+                    setWindowState("editing");
                 }}
                 onDelete={(c) => {
-                    deleteContact(c.id);
+                    deleteContact(c);
                 }}
             ></ContactList>
         </div>
     );
 }
-
-function ContactList({
-    contacts,
-    onEdit,
-    onDelete
-}: {
-    contacts: Contact[];
-    onEdit: (c: Contact) => void;
-    onDelete: (c: Contact) => void;
-}) {
-    return (
-        <ul>
-            {contacts.map((c) => (
-                <li key={c.id}>
-                    <div className="contact-info">
-                        <strong>{c.name}</strong>
-                        <br></br>
-                        {c.phone}
-                    </div>
-                    <button onClick={() => onEdit(c)}>Edit</button>
-                    <button onClick={() => onDelete(c)}>Delete</button>
-                </li>
-            ))}
-        </ul>
-    );
-}
-
-function AddContactWindow({
-    onClose,
-    onSubmit
-}: {
-    onClose: () => void;
-    onSubmit: (name: string, phone: string) => void;
-}) {
-    const [name, setName] = useState("");
-    const [phone, setPhone] = useState("");
-    const [error, setError] = useState("");
-
-    return (
-        <div style={windowStyle}>
-            <h1>Add Contact</h1>
-            <input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="name"
-            ></input>
-            <input
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="phone number"
-            ></input>
-            <button
-                onClick={() => {
-                    if (!name || !phone) {
-                        setError("Invalid phone or name");
-                    } else {
-                        onSubmit(name, phone);
-                        setError("");
-                    }
-                }}
-            >
-                Submit
-            </button>
-            <button onClick={onClose}>Close</button>
-            <div>{error}</div>
-        </div>
-    );
-}
-
-function EditContactWindow({
-    contact,
-    onSubmit,
-    onClose
-}: {
-    contact: Contact;
-    onSubmit: (name: string, phone: string) => void;
-    onClose: () => void;
-}) {
-    const [newName, setName] = useState(contact.name);
-    const [newPhone, setPhone] = useState(contact.phone);
-    const [error, setError] = useState("");
-
-    return (
-        <div style={windowStyle}>
-            <h1>Edit Contact</h1>
-            <input
-                value={newName}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="name"
-            ></input>
-            <input
-                value={newPhone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="phone number"
-            ></input>
-            <button
-                onClick={() => {
-                    if (!newName || !newPhone) {
-                        setError("Invalid phone or name");
-                    } else {
-                        onSubmit(newName, newPhone);
-                        setError("");
-                    }
-                }}
-            >
-                Submit
-            </button>
-            <button onClick={onClose}>Close</button>
-            <div>{error}</div>
-        </div>
-    );
-}
-
-const windowStyle: CSSProperties = {
-    border: "1px solid #ccc",
-    padding: "1rem",
-    background: "rgba(48, 47, 47, 0.82)",
-    position: "fixed",
-    top: "30%",
-    left: "40%",
-    width: "300px",
-    boxShadow: "0 0 10px rgba(29, 29, 29, 0.2)"
-};
 
 export default App;
