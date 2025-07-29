@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./App.css";
+import "./grid.css";
 import type { Contact } from "./Contact";
 import { ContactList } from "./ContactList";
 import { AddContactWindow } from "./AddContactWindow";
@@ -85,29 +86,32 @@ function App() {
     };
 
     return (
-        <div>
-            <h1>Contact book</h1>
-            <button
-                onClick={() => {
-                    setWindowState("adding");
-                }}
-            >
-                Add Contact
-            </button>
+        <>
+            <div className="top">
+                <h1>Contact book</h1>
+                <button
+                    onClick={() => {
+                        setWindowState("adding");
+                    }}
+                >
+                    Add Contact
+                </button>
+            </div>
+            <div className="bottom">
+                {renderWindows()}
 
-            {renderWindows()}
-
-            <ContactList
-                contacts={contacts}
-                onEdit={(c) => {
-                    setContactToEdit(c);
-                    setWindowState("editing");
-                }}
-                onDelete={(c) => {
-                    deleteContact(c);
-                }}
-            ></ContactList>
-        </div>
+                <ContactList
+                    contacts={contacts}
+                    onEdit={(c) => {
+                        setContactToEdit(c);
+                        setWindowState("editing");
+                    }}
+                    onDelete={(c) => {
+                        deleteContact(c);
+                    }}
+                ></ContactList>
+            </div>
+        </>
     );
 }
 
