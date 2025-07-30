@@ -4,7 +4,7 @@ set -e
 echo "Building frontend (Vite)..."
 cd frontend
 npm install
-npm run build
+VITE_API_URL=http://localhost:5555 npm run build
 mkdir -p ../build/frontend
 cp -r dist ../build/frontend
 

@@ -27,3 +27,15 @@ Run for backend
 Run for frontend
 
 `npx serve build/frontend/dist`
+
+#### With docker
+
+`git clone https://github.com/izicoder/contactbook`
+
+`cd contactbook`
+
+Replace VITE_API_URL in docker-compose.yml with your hostname or ip, then
+
+`docker-compose up -d`
+
+#### Demo at http://88.210.9.124:5173
