@@ -10,7 +10,7 @@ RUN npm install -g serve
 WORKDIR /app
 COPY --from=builder /app/build/frontend ./frontend
 EXPOSE 5173
-CMD ["serve", "-s", "frontend", "-l", "5173"]
+CMD ["serve", "-s", "frontend/dist", "-l", "5173"]
 
 FROM node:22.17.1 AS backend
 
