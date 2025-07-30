@@ -8,7 +8,7 @@ import parsePhoneNumber from "libphonenumber-js";
 import { ErrorPopUp } from "./ErrorPopup";
 import { DeleteConfirm } from "./DeleteConfimWindow";
 
-const apiEndpoint = "http://127.0.0.1:9999/contact";
+const apiEndpoint = `${import.meta.env.VITE_API_URL}/contact`;
 
 type WindowState = "closed" | "editing" | "adding" | "deleting";
 

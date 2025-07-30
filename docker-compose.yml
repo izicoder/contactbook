@@ -4,19 +4,19 @@ services:
     frontend:
         build:
             context: .
-            dockerfile: build.dockerfile
+            dockerfile: frontend/frontend.dockerfile
             target: frontend
         ports:
-            - "5555:5173"
+            - "5173:5173"
         depends_on:
             - backend
 
     backend:
         build:
             context: .
-            dockerfile: build.dockerfile
+            dockerfile: backend/backend.dockerfile
             target: backend
         ports:
-            - "3000:3000"
+            - "5555:5555"
         environment:
             - NODE_ENV=production
