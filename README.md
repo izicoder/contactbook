@@ -20,4 +20,10 @@ How to run:
 
 `./build.sh`
 
-`(node build/backend/dist/index.js) & (npx serve build/frontend/dist)`
+Run for backend
+
+`node build/backend/dist/index.js`
+
+Run for frontend
+
+`npx serve build/frontend/dist`
