@@ -13,7 +13,7 @@
 
 Requires node.js version 22 and linux environment
 
-How build:
+How to build:
 
 `git clone https://github.com/izicoder/contactbook`
 
