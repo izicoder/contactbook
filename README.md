@@ -7,6 +7,7 @@
 -   LowDB;
 -   React.js;
 -   Typescript;
+-   libphonenumber-js;
 
 #### Usage
 
