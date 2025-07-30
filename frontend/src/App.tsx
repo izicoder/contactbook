@@ -6,10 +6,11 @@ import { AddContactWindow } from "./AddContactWindow";
 import { EditContactWindow } from "./EditContactWindow";
 import parsePhoneNumber from "libphonenumber-js";
 import { ErrorPopUp } from "./ErrorPopup";
+import { DeleteConfirm } from "./DeleteConfimWindow";
 
 const apiEndpoint = "http://127.0.0.1:9999/contact";
 
-type WindowState = "closed" | "editing" | "adding";
+type WindowState = "closed" | "editing" | "adding" | "deleting";
 
 function isValidPhoneNumber(phone: string): boolean {
     const parsed = parsePhoneNumber(phone);
@@ -30,6 +31,7 @@ function jsonFetch(url: RequestInfo | URL, method: string = "get", jsonBody: any
 function App() {
     const [contacts, setContacts] = useState<Contact[]>([]);
     const [contactToEdit, setContactToEdit] = useState<Contact | null>(null);
+    const [contactToDelete, setContactToDelete] = useState<Contact | null>(null);
     const [windowState, setWindowState] = useState<WindowState>("closed");
     const [showError, setShowError] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
@@ -99,9 +101,29 @@ function App() {
                         <EditContactWindow
                             contact={contactToEdit}
                             onClose={() => setWindowState("closed")}
-                            onSubmit={editContact}
+                            onSubmit={(c) => {
+                                editContact(c);
+                                setWindowState("closed");
+                            }}
                             onError={(msg) => popError(msg)}
                         />
+                    );
+                } else {
+                    popError("Oops");
+                    return <></>;
+                }
+            }
+            case "deleting": {
+                if (contactToDelete !== null) {
+                    return (
+                        <DeleteConfirm
+                            contact={contactToDelete}
+                            onClose={() => setWindowState("closed")}
+                            onDelete={(c) => {
+                                deleteContact(c);
+                                setWindowState("closed");
+                            }}
+                        ></DeleteConfirm>
                     );
                 } else {
                     popError("Oops");
@@ -117,7 +139,7 @@ function App() {
     return (
         <>
             <div className="top">
-                <h1>Contact book</h1>
+                <h1>Contact Book</h1>
                 <button
                     onClick={() => {
                         setWindowState("adding");
@@ -136,7 +158,8 @@ function App() {
                         setWindowState("editing");
                     }}
                     onDelete={(c) => {
-                        deleteContact(c);
+                        setContactToDelete(c);
+                        setWindowState("deleting");
                     }}
                 ></ContactList>
             </div>

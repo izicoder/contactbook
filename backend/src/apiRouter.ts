@@ -1,8 +1,21 @@
 import { Router } from "express";
 import db from "./db";
 import { v4 as uuidv4 } from "uuid";
+import parsePhoneNumber from "libphonenumber-js";
 
 const apiRouter = Router();
+
+function isValidPhoneNumber(phone: string): boolean {
+    const parsed = parsePhoneNumber(phone);
+    if (parsed?.isValid()) return true;
+    else return false;
+}
+
+function formatPhoneNumber(phone: string): string {
+    const parsed = parsePhoneNumber(phone);
+    if (!parsed) throw "Error while formatting phone number";
+    else return parsed.formatInternational();
+}
 
 apiRouter.get("/", async (req, res) => {
     await db.read();
@@ -12,11 +25,12 @@ apiRouter.get("/", async (req, res) => {
 apiRouter.post("/", async (req, res) => {
     if (!req.body.name || !req.body.phone) return res.status(400).json({ error: "Missing name or phone" });
     const { name, phone } = req.body;
+    if (!isValidPhoneNumber(phone)) return res.status(400).json({ error: "Invalid phone number" });
 
     const newContact = {
         id: uuidv4(),
         name: name,
-        phone: phone
+        phone: formatPhoneNumber(phone)
     };
     db.data.contacts.push(newContact);
     await db.write();
@@ -27,6 +41,7 @@ apiRouter.post("/", async (req, res) => {
 apiRouter.put("/:id", async (req, res) => {
     if (!req.body.name || !req.body.phone) return res.status(400).json({ error: "Missing name or phone" });
     const { name, phone } = req.body;
+    if (!isValidPhoneNumber(phone)) return res.status(400).json({ error: "Invalid phone number" });
 
     const id = req.params.id;
 
@@ -36,7 +51,7 @@ apiRouter.put("/:id", async (req, res) => {
     if (!contact) return res.status(400).json({ error: `Cant find contact ${id}` });
 
     contact.name = name;
-    contact.phone = phone;
+    contact.phone = formatPhoneNumber(phone);
     await db.write();
     res.json(contact);
 });
@@ -53,7 +68,6 @@ apiRouter.delete("/:id", async (req, res) => {
             return true;
         }
     });
-    console.log(contactIndex);
     if (contactIndex === null) return res.status(400).json({ error: `Cant find contact ${id}` });
 
     const deleted = db.data.contacts.splice(contactIndex, 1);

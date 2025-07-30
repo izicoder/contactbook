@@ -153,3 +153,4 @@ out/
 .svelte-kit
 
 db.json
+backend/public

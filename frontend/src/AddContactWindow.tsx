@@ -16,16 +16,7 @@ export function AddContactWindow({
     return (
         <div className="window">
             <h2>Add Contact</h2>
-            <form
-                onSubmit={(e) => {
-                    e.preventDefault();
-                    if (!name || !phone) {
-                        onError("Missing name or phone number");
-                    } else {
-                        onSubmit(name, phone);
-                    }
-                }}
-            >
+            <form onSubmit={(e) => e.preventDefault()}>
                 <input
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -36,7 +27,18 @@ export function AddContactWindow({
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="Phone number"
                 />
-                <button type="submit">Submit</button>
+                <button
+                    type="submit"
+                    onClick={() => {
+                        if (!name || !phone) {
+                            onError("Missing name or phone number");
+                        } else {
+                            onSubmit(name, phone);
+                        }
+                    }}
+                >
+                    Add
+                </button>
                 <button
                     type="button"
                     className="cancel-button"

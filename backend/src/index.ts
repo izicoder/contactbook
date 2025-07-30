@@ -17,4 +17,5 @@ server.use(async (req, res, next) => {
 server.use("/contact", router);
 
 const port = 9999;
-server.listen(port, () => console.log(`running on ${port}`));
+const host = "";
+server.listen(port, host, () => console.log(`running on ${host}:${port}`));

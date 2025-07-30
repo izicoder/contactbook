@@ -19,16 +19,7 @@ export function EditContactWindow({
     return (
         <div className="window">
             <h2>Edit Contact</h2>
-            <form
-                onSubmit={(e) => {
-                    e.preventDefault();
-                    if (!newName || !newPhone) {
-                        onError("Missing name or phone number");
-                    } else {
-                        onSubmit({ id: contact.id, name: newName, phone: newPhone });
-                    }
-                }}
-            >
+            <form onSubmit={(e) => e.preventDefault()}>
                 <input
                     value={newName}
                     onChange={(e) => setName(e.target.value)}
@@ -39,7 +30,18 @@ export function EditContactWindow({
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="Phone number"
                 />
-                <button type="submit">Submit</button>
+                <button
+                    type="submit"
+                    onClick={() => {
+                        if (!newName || !newPhone) {
+                            onError("Missing name or phone number");
+                        } else {
+                            onSubmit({ id: contact.id, name: newName, phone: newPhone });
+                        }
+                    }}
+                >
+                    Edit
+                </button>
                 <button
                     type="button"
                     className="cancel-button"
