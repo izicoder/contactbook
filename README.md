@@ -38,5 +38,3 @@ Run for frontend
 Replace VITE_API_URL in docker-compose.yml with your hostname or ip, then
 
 `docker-compose up -d`
-
-#### Demo at http://88.210.9.124:5173
